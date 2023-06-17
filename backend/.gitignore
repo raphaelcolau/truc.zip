@@ -2,6 +2,8 @@
 server/node_modules/
 node_modules/
 /dist/
+files/
+files/*
 npm-debug.log*
 *.log*
 yarn-debug.log*
