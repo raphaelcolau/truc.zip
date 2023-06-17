@@ -10,7 +10,7 @@ exports.deleteFile = async (req, res) => {
             if (!file) return res.status(404).send({error: 'File not found.'});
             return res.status(200).send("File deleted successfully.");
         });
-        fs.rmdirSync('./files/' + url, { recursive: true }, (err) => {
+        fs.rm('./files/' + url, { recursive: true }, (err) => {
             if (err) throw err;
         });
     } catch (error) {
