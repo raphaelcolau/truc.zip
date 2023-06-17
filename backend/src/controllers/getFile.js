@@ -8,7 +8,6 @@ exports.getFile = async (req, res) => {
 
     try {
         File.findOne({ url: id }).then((file) => {
-            console.log(file)
             if (!file) return res.status(404).send({error: 'File not found.'});
             return res.status(200).send({
                 name: file.name,
