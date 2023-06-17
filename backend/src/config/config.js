@@ -2,8 +2,8 @@ const fs = require('fs');
 
 exports.getConfig = async () => {
     const VERSION = "1.1.0";
-    const SERVER_PORT_HTTP = "8000";  // HTTP port
-    let SERVER_PORT_HTTPS = ""; // HTTPS port
+    const SERVER_PORT_HTTP = "1414";  // HTTP port
+    let SERVER_PORT_HTTPS = "1515"; // HTTPS port
     let SERVER_HOST = ''; // Server host
     let DB_URI = ''; // Database url
 
