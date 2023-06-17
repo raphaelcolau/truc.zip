@@ -12,7 +12,6 @@ function Square(props) {
     (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.2 + 0.1)
   ); // Vitesse de rotation aléatoire avec direction aléatoire
   const repulsionForce = props.repulsionForce || 0.1;
-  const [forceDuration, setForceDuration] = useState(40); // Durée de la force de répulsion
   const bezierCurve = [.63,.11,.29,.73];
 
   useFrame((state, delta) => {
@@ -41,7 +40,7 @@ function Square(props) {
         const sizeFactor = (mesh.current.scale.x - square.scale.x) * 0.5;
         const force = sizeFactor / (distance * distance) * repulsionForce; // Calcul de la force de répulsion avec le paramètre repulsionForce
   
-        if (distance < mesh.current.scale.x + square.scale.x && forceDuration > 0) {
+        if (distance < mesh.current.scale.x + square.scale.x) {
             const t = THREE.MathUtils.clamp(distance / (mesh.current.scale.x + square.scale.x), 0, 1); // Paramètre t pour l'interpolation cubique
             const curveInterpolation = THREE.CubicBezierCurve3.prototype.getPointAt.bind(
               new THREE.CubicBezierCurve3(
@@ -60,8 +59,6 @@ function Square(props) {
     
             square.position.x -= forceX;
             square.position.y -= forceY;
-    
-            setForceDuration((prevDuration) => prevDuration - delta);
           }
       });
     });
@@ -147,7 +144,7 @@ export default function PageHome() {
                 Math.floor(Math.random() * 14 - 7),
                 Math.random() * 4 - 2,
               ]}
-              repulsionForce={10} // Valeur de la force de répulsion, ajustez-la selon vos besoins
+              repulsionForce={5} // Valeur de la force de répulsion, ajustez-la selon vos besoins
             />
           ))}
         </Canvas>
