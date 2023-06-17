@@ -127,7 +127,7 @@ function Square(props) {
       <primitive object={material} attach="material" />
       {mesh.current && (
         <Html position={[0, 0, 0.1]}>
-          <div className="text">{mesh.current.scale.x.toFixed(2)}</div>
+          <div className="text">{props.truc}</div>
         </Html>
       )}
     </mesh>
@@ -138,11 +138,12 @@ export default function PageHome() {
     return (
       <div className="page">
         <Canvas className="three__Canvas">
-          {Array.from({ length: 70 }).map((_, index) => (
+          {Array.from({ length: 100 }).map((_, index) => (
             <Square
               key={index}
+              truc={index}
               position={[
-                Math.floor(Math.random() * 10 - 5),
+                Math.floor(Math.random() * 14 - 7),
                 Math.floor(Math.random() * 14 - 7),
                 Math.random() * 4 - 2,
               ]}
