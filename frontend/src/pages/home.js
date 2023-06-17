@@ -4,67 +4,102 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 
 function Square(props) {
-  const mesh = useRef();
-  const [hovered, setHover] = useState(false);
-  const [active, setActive] = useState(false);
-  const [velocity, setVelocity] = useState(Math.random() * 0.2 + 0.1); // Vitesse de chute aléatoire
-  const [rotationVelocity, setRotationVelocity] = useState(
-    (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.2 + 0.1)
-  ); // Vitesse de rotation aléatoire avec direction aléatoire
-  const repulsionForce = props.repulsionForce || 0.1;
-  const [forceDuration, setForceDuration] = useState(40); // Durée de la force de répulsion
-  const bezierCurve = [.63,.11,.29,.73];
+    const mesh = useRef();
+    const [originalPositions, setOriginalPositions] = useState([]);
+    const [hovered, setHover] = useState(false);
+    const [active, setActive] = useState(false);
+    const [velocity, setVelocity] = useState(Math.random() * 0.2 + 0.1);
+    const [rotationVelocity, setRotationVelocity] = useState(
+      (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.2 + 0.1)
+    );
+    const repulsionForce = props.repulsionForce || 0.1;
+    const [forceDuration, setForceDuration] = useState(40);
+    const bezierCurve = [0.63, 0.11, 0.29, 0.73];
+
 
   useFrame((state, delta) => {
-    mesh.current.position.y -= velocity * delta; // Utilisation de la vitesse de chute
-    mesh.current.rotation.z += rotationVelocity * delta; // Rotation sur l'axe Z
+    mesh.current.position.y -= velocity * delta;
+    mesh.current.rotation.z += rotationVelocity * delta;
 
-    // Rebondissement lorsque le carré atteint le bas de la scène
-    if (mesh.current.position.y < -7 || mesh.current.position.x < -7 || mesh.current.position.x > 7) {
-      mesh.current.position.y = 7; // Réinitialisation de la position en haut de la scène
-      setVelocity(Math.random() * 0.2 + 0.1); // Nouvelle vitesse de chute aléatoire
-      setRotationVelocity(
-        (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.2 + 0.1)
-      ); // Nouvelle vitesse de rotation aléatoire avec direction aléatoire
-    }
+
+    if (props.isCircleActive) {
+        // Formation d'un cercle
+        const radius = 2;
+        const angle = (Math.PI * 2) / props.numberOfSquares;
+        const index = props.index;
+        const theta = index * angle;
+  
+        const x = Math.cos(theta) * radius;
+        const y = Math.sin(theta) * radius;
+  
+        mesh.current.position.x = x;
+        mesh.current.position.y = y;
+      } else {
+        // Retour aux positions et vélocités d'origine
+        mesh.current.rotation.z += rotationVelocity * delta;
+  
+        // Rebondissement lorsque le carré atteint le bas de la scène
+        if (mesh.current.position.y < -7 || mesh.current.position.x < -7 || mesh.current.position.x > 7) {
+          mesh.current.position.y = 7;
+          setVelocity(Math.random() * 0.2 + 0.1);
+          setRotationVelocity((Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.2 + 0.1));
+        } else {
+          mesh.current.position.y -= velocity * delta;
+        }
+      }
+  
+
 
     // Détection de collision avec les autres carrés
-    const squares = state.scene.children.filter(
-      (child) => child.type === 'Mesh' && child !== mesh.current
-    );
+    const squares = props.squares.filter((square) => square !== mesh.current);
 
     squares.forEach((square) => {
-        const dx = mesh.current.position.x - square.position.x;
-        const dy = mesh.current.position.y - square.position.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-  
-        const sizeFactor = (mesh.current.scale.x - square.scale.x) * 0.5;
-        const force = sizeFactor / (distance * distance) * repulsionForce; // Calcul de la force de répulsion avec le paramètre repulsionForce
-  
-        if (distance < mesh.current.scale.x + square.scale.x && forceDuration > 0) {
-            const t = THREE.MathUtils.clamp(distance / (mesh.current.scale.x + square.scale.x), 0, 1); // Paramètre t pour l'interpolation cubique
-            const curveInterpolation = THREE.CubicBezierCurve3.prototype.getPointAt.bind(
-              new THREE.CubicBezierCurve3(
-                new THREE.Vector3(0, 0, 0),
-                new THREE.Vector3(bezierCurve[0], bezierCurve[1], 0),
-                new THREE.Vector3(bezierCurve[2], bezierCurve[3], 0),
-                new THREE.Vector3(1, 1, 0)
-              )
-            );
-    
-            const forceX = (curveInterpolation(t).x - t) * force * repulsionForce * delta;
-            const forceY = (curveInterpolation(t).y - t) * force * repulsionForce * delta;
-    
-            mesh.current.position.x += forceX;
-            mesh.current.position.y += forceY;
-    
-            square.position.x -= forceX;
-            square.position.y -= forceY;
-    
-            setForceDuration((prevDuration) => prevDuration - delta);
-          }
-      });
+      const dx = mesh.current.position.x - square.position.x;
+      const dy = mesh.current.position.y - square.position.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      const sizeFactor = (mesh.current.scale.x - square.scale.x) * 0.5;
+      const force = sizeFactor / (distance * distance) * repulsionForce;
+
+      if (distance < mesh.current.scale.x + square.scale.x && forceDuration > 0) {
+        const t = THREE.MathUtils.clamp(distance / (mesh.current.scale.x + square.scale.x), 0, 1);
+        const curveInterpolation = THREE.CubicBezierCurve3.prototype.getPointAt.bind(
+          new THREE.CubicBezierCurve3(
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(bezierCurve[0], bezierCurve[1], 0),
+            new THREE.Vector3(bezierCurve[2], bezierCurve[3], 0),
+            new THREE.Vector3(1, 1, 0)
+          )
+        );
+
+        const forceX = (curveInterpolation(t).x - t) * force * repulsionForce * delta;
+        const forceY = (curveInterpolation(t).y - t) * force * repulsionForce * delta;
+
+        mesh.current.position.x += forceX;
+        mesh.current.position.y += forceY;
+
+        square.position.x -= forceX;
+        square.position.y -= forceY;
+
+        setForceDuration((prevDuration) => prevDuration - 1);
+      }
     });
+  });
+
+  useEffect(() => {
+    const scale = Math.random() * 0.2 + 0.35;
+    mesh.current.scale.set(scale, scale, 1);
+    const pixelWidth = window.innerWidth / scale;
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const aspectRatio = screenWidth / screenHeight;
+    const borderWidth = pixelWidth / Math.max(screenWidth, screenHeight) * aspectRatio;
+    const material = mesh.current.material;
+    material.uniforms.borderWidth.value = borderWidth;
+
+    // Enregistrer les positions d'origine des carrés
+    setOriginalPositions([props.position[0], props.position[1]]);
+  }, [props.position]);
 
   useEffect(() => {
     const scale = Math.random() * 0.2 + 0.35; // Taille aléatoire entre 0.35 et 0.55
@@ -79,7 +114,8 @@ function Square(props) {
 
     const material = mesh.current.material;
     material.uniforms.borderWidth.value = borderWidth;
-  }, []);
+
+  });
 
   const material = new THREE.ShaderMaterial({
     uniforms: {
@@ -126,8 +162,8 @@ function Square(props) {
       <planeGeometry args={[1, 1]} />
       <primitive object={material} attach="material" />
       {mesh.current && (
-        <Html position={[0, 0, 0.1]}>
-          <div className="text">{props.truc}</div>
+        <Html position={[0, 0, 0]}>
+          <div className="text">{props.index}</div>
         </Html>
       )}
     </mesh>
@@ -135,19 +171,43 @@ function Square(props) {
 }
 
 export default function PageHome() {
+    const [isCircleActive, setIsCircleActive] = useState(false);
+    const [squares, setSquares] = useState([]);
+  
+    useEffect(() => {
+      const handleMouseDown = () => {
+        setIsCircleActive(true);
+      };
+  
+      const handleMouseUp = () => {
+        setIsCircleActive(false);
+      };
+  
+      window.addEventListener('mousedown', handleMouseDown);
+      window.addEventListener('mouseup', handleMouseUp);
+  
+      return () => {
+        window.removeEventListener('mousedown', handleMouseDown);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }, []);
+  
     return (
       <div className="page">
         <Canvas className="three__Canvas">
           {Array.from({ length: 100 }).map((_, index) => (
             <Square
               key={index}
-              truc={index}
+              index={index}
+              numberOfSquares={100}
               position={[
                 Math.floor(Math.random() * 14 - 7),
                 Math.floor(Math.random() * 14 - 7),
                 Math.random() * 4 - 2,
               ]}
-              repulsionForce={10} // Valeur de la force de répulsion, ajustez-la selon vos besoins
+              squares={squares}
+              repulsionForce={10}
+              isCircleActive={isCircleActive}
             />
           ))}
         </Canvas>
