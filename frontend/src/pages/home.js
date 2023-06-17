@@ -12,16 +12,15 @@ function Square(props) {
     (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.2 + 0.1)
   ); // Vitesse de rotation aléatoire avec direction aléatoire
   const repulsionForce = props.repulsionForce || 0.1;
-  const [forceDuration, setForceDuration] = useState(0); // Durée de la force de répulsion
-  const bezierCurve = [0.16, 0.88, 0.46, 0.89];
-  const maxForceDuration = props.maxForceDuration || 1000; // Durée maximale de la force de répulsion (par défaut 1000 millisecondes)
+  const [forceDuration, setForceDuration] = useState(40); // Durée de la force de répulsion
+  const bezierCurve = [.63,.11,.29,.73];
 
   useFrame((state, delta) => {
     mesh.current.position.y -= velocity * delta; // Utilisation de la vitesse de chute
     mesh.current.rotation.z += rotationVelocity * delta; // Rotation sur l'axe Z
 
     // Rebondissement lorsque le carré atteint le bas de la scène
-    if (mesh.current.position.y < -7) {
+    if (mesh.current.position.y < -7 || mesh.current.position.x < -7 || mesh.current.position.x > 7) {
       mesh.current.position.y = 7; // Réinitialisation de la position en haut de la scène
       setVelocity(Math.random() * 0.2 + 0.1); // Nouvelle vitesse de chute aléatoire
       setRotationVelocity(
@@ -35,48 +34,37 @@ function Square(props) {
     );
 
     squares.forEach((square) => {
-      const dx = mesh.current.position.x - square.position.x;
-      const dy = mesh.current.position.y - square.position.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      const combinedScale = mesh.current.scale.x + square.scale.x;
-      const minDistance = combinedScale * 0.1; // Distance minimale pour détecter la collision
-
-      if (distance < minDistance && forceDuration > 0) {
-        console.log(minDistance, distance)
-        const t = THREE.MathUtils.clamp(
-          distance / minDistance,
-          0,
-          1
-        ); // Paramètre t pour l'interpolation cubique
-
-        const curveInterpolation = new THREE.CubicBezierCurve3(
-          new THREE.Vector3(0, 0, 0),
-          new THREE.Vector3(bezierCurve[0], bezierCurve[1], 0),
-          new THREE.Vector3(bezierCurve[2], bezierCurve[3], 0),
-          new THREE.Vector3(1, 1, 0)
-        );
-
-        const force = repulsionForce * delta; // Force de répulsion constante
-
-        const forceX = (curveInterpolation.getPointAt(t).x - t) * force;
-        const forceY = (curveInterpolation.getPointAt(t).y - t) * force;
-
-        mesh.current.position.x += forceX;
-        mesh.current.position.y += forceY;
-
-        square.position.x -= forceX;
-        square.position.y -= forceY;
-
-        setForceDuration((prevDuration) => prevDuration - delta);
-        mesh.current.material.color = new THREE.Color(0xff0000); // Changement de couleur lors de la collision
-      }
+        const dx = mesh.current.position.x - square.position.x;
+        const dy = mesh.current.position.y - square.position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+  
+        const sizeFactor = (mesh.current.scale.x - square.scale.x) * 0.5;
+        const force = sizeFactor / (distance * distance) * repulsionForce; // Calcul de la force de répulsion avec le paramètre repulsionForce
+  
+        if (distance < mesh.current.scale.x + square.scale.x && forceDuration > 0) {
+            const t = THREE.MathUtils.clamp(distance / (mesh.current.scale.x + square.scale.x), 0, 1); // Paramètre t pour l'interpolation cubique
+            const curveInterpolation = THREE.CubicBezierCurve3.prototype.getPointAt.bind(
+              new THREE.CubicBezierCurve3(
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(bezierCurve[0], bezierCurve[1], 0),
+                new THREE.Vector3(bezierCurve[2], bezierCurve[3], 0),
+                new THREE.Vector3(1, 1, 0)
+              )
+            );
+    
+            const forceX = (curveInterpolation(t).x - t) * force * repulsionForce * delta;
+            const forceY = (curveInterpolation(t).y - t) * force * repulsionForce * delta;
+    
+            mesh.current.position.x += forceX;
+            mesh.current.position.y += forceY;
+    
+            square.position.x -= forceX;
+            square.position.y -= forceY;
+    
+            setForceDuration((prevDuration) => prevDuration - delta);
+          }
+      });
     });
-
-    if (forceDuration <= 0) {
-      mesh.current.material.color = new THREE.Color(0xffffff); // Réinitialisation de la couleur lorsque la force de répulsion se termine
-    }
-  });
 
   useEffect(() => {
     const scale = Math.random() * 0.2 + 0.35; // Taille aléatoire entre 0.35 et 0.55
@@ -87,8 +75,7 @@ function Square(props) {
     const screenHeight = window.innerHeight;
     const aspectRatio = screenWidth / screenHeight;
 
-    const borderWidth =
-      pixelWidth / Math.max(screenWidth, screenHeight) * aspectRatio;
+    const borderWidth = pixelWidth / Math.max(screenWidth, screenHeight) * aspectRatio;
 
     const material = mesh.current.material;
     material.uniforms.borderWidth.value = borderWidth;
@@ -140,12 +127,7 @@ function Square(props) {
       <primitive object={material} attach="material" />
       {mesh.current && (
         <Html position={[0, 0, 0.1]}>
-          <div className="text">
-            {mesh.current.scale.x.toFixed(2)}
-            {forceDuration > 0 && (
-              <div className="collision-message">Collision détectée !</div>
-            )}
-          </div>
+          <div className="text">{mesh.current.scale.x.toFixed(2)}</div>
         </Html>
       )}
     </mesh>
@@ -153,22 +135,21 @@ function Square(props) {
 }
 
 export default function PageHome() {
-  return (
-    <div className="page">
-      <Canvas className="three__Canvas">
-        {Array.from({ length: 70 }).map((_, index) => (
-          <Square
-            key={index}
-            position={[
-              Math.floor(Math.random() * 10 - 5),
-              Math.floor(Math.random() * 14 - 7),
-              Math.random() * 4 - 2,
-            ]}
-            repulsionForce={300} // Valeur de la force de répulsion, ajustez-la selon vos besoins
-            maxForceDuration={1000} // Durée maximale de la force de répulsion (en millisecondes)
-          />
-        ))}
-      </Canvas>
-    </div>
-  );
-}
+    return (
+      <div className="page">
+        <Canvas className="three__Canvas">
+          {Array.from({ length: 70 }).map((_, index) => (
+            <Square
+              key={index}
+              position={[
+                Math.floor(Math.random() * 10 - 5),
+                Math.floor(Math.random() * 14 - 7),
+                Math.random() * 4 - 2,
+              ]}
+              repulsionForce={10} // Valeur de la force de répulsion, ajustez-la selon vos besoins
+            />
+          ))}
+        </Canvas>
+      </div>
+    );
+  }
