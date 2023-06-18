@@ -11,7 +11,7 @@ export default function FileInfo(props) {
         setInfo(data);
       });
     }, [fileId]);
-  
+
     const sizeToText = (size) => {
       if (size < 1024) {
         return size + " B";
