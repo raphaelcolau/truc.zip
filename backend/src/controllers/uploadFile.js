@@ -3,13 +3,14 @@ const File = require('../models/files.model.js');
 const fs = require('fs');
 
 exports.uploadFile = async (req, res) => {
-    const file = req.files.files;
-
-    if (!file) {
-        return res.status(400).send('No files were uploaded.');
-    };
 
     try {
+        const file = req.files ? req.files.files : null;
+
+        if (!file) {
+            return res.status(400).send('No files were uploaded.');
+        };
+
         const randomId = Math.random().toString(36).substring(2, 8);
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     
