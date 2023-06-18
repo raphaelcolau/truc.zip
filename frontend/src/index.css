@@ -11,8 +11,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  background-color: #000000;
-  color: #ffffff;
+  --color-primary: #ffffff;
+  --color-secondary: #000000;
+  --border-size: 3px;
+  --border: var(--border-size) solid var(--color-primary);
+  --size: 120px;
+  --margin-button: 10px;
+  --hover-scale: 1.2;
+
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
 }
 
 code {
@@ -29,6 +37,8 @@ code {
 .page {
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
 .three__Canvas {
@@ -37,7 +47,7 @@ code {
   position: fixed;
   top: 0;
   left: 0;
-  border: 3px solid #ffffff;
+  border: var(--border);
 }
 
 .logo {
@@ -46,4 +56,61 @@ code {
   left: 10px;
   width: min(50vw, 400px);
   z-index: 100;
+}
+
+.button-bar {
+  position: absolute;
+  bottom: calc(var(--size) / 2);
+  right: calc(var(--size) / 2);
+  z-index: 100;
+}
+
+.button-bar:has(.button:hover) .button:not(:hover) {
+  transform: scale(calc(var(--hover-scale) * 0.55)) rotate(45deg);
+}
+.button-bar:has(.button:hover) .button:nth-child(even):not(:hover) {
+  transform: translateY(calc(var(--size) * -1 + calc(var(--margin-button) * 2))) scale(calc(var(--hover-scale) * 0.55)) rotate(45deg);
+}
+
+.button {
+  z-index: 101;
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+  border: var(--border);
+  aspect-ratio: 1/1;
+  width: var(--size);
+  height: var(--size);
+  transform: rotate(45deg);
+  margin-left: calc(var(--margin-button) * -1);
+  margin-right: calc(var(--margin-button) * -1);
+  transition: transform 0.3s ease-in-out;
+}
+
+.button:nth-child(even) {
+  transform: translateY(calc(var(--size) * -1 + calc(var(--margin-button) * 2))) rotate(45deg);
+}
+
+.button > * {
+  transform: rotate(-45deg);
+  transition: transform 0.3s ease-in-out;
+}
+
+.button > .button-text {
+  font-family: 'ModernSansLight';
+  font-size: 1.3rem;
+}
+
+.button:hover {
+  cursor: pointer;
+  transform: rotate(0deg) scale(var(--hover-scale));
+  transition: transform 0.3s ease-in-out;
+}
+
+.button:hover:nth-child(even) {
+  transform: translateY(calc(var(--size) * -1 + calc(var(--margin-button) * 2))) rotate(0deg) scale(var(--hover-scale));
+}
+
+.button:hover > * {
+  transform: rotate(0deg);
+  transition: transform 0.3s ease-in-out;
 }
