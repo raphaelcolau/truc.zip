@@ -1,26 +1,40 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
+import { CameraControls, Html } from '@react-three/drei';
 import * as THREE from 'three';
 
 function Square(props) {
   const mesh = useRef();
   const [hovered, setHover] = useState(false);
   const [active, setActive] = useState(false);
-  const [velocity, setVelocity] = useState(Math.random() * 0.2 + 0.1); // Vitesse de chute aléatoire
+  const originalVelocity = Math.random() * 0.2 + 0.1; // Vitesse de chute aléatoire
+  const [velocity, setVelocity] = useState(originalVelocity); // Vitesse de chute aléatoire
+  const [targetVelocity, setTargetVelocity] = useState(velocity); // Vitesse de chute cible pour l'animation de changement de vitesse
   const [rotationVelocity, setRotationVelocity] = useState(
     (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.2 + 0.1)
   ); // Vitesse de rotation aléatoire avec direction aléatoire
   const repulsionForce = props.repulsionForce || 0.1;
   const bezierCurve = [.63,.11,.29,.73];
+  const transitionDuration = 1; // Durée de la transition de vitesse en secondes
+
+  useEffect(() => {
+    setTargetVelocity(props.isSpeedUp ? 1 : originalVelocity);
+  }, [props.isSpeedUp, originalVelocity]);
 
   useFrame((state, delta) => {
-    mesh.current.position.y -= velocity * delta; // Utilisation de la vitesse de chute
-    mesh.current.rotation.z += rotationVelocity * delta; // Rotation sur l'axe Z
+    setVelocity((currentVelocity) => {
+      const deltaVelocity = (targetVelocity - currentVelocity) / (transitionDuration * 60);
+      const newVelocity = currentVelocity + deltaVelocity;
+      return Math.abs(targetVelocity - newVelocity) < 0.001 ? targetVelocity : newVelocity;
+    });
+
+    mesh.current.position.y -= (velocity * (props.isSpeedUp ? 3 : 1)) * delta;
+    mesh.current.rotation.z += rotationVelocity * delta;
 
     // Rebondissement lorsque le carré atteint le bas de la scène
     if (mesh.current.position.y < -7 || mesh.current.position.x < -7 || mesh.current.position.x > 7) {
       mesh.current.position.y = 7; // Réinitialisation de la position en haut de la scène
+      mesh.current.position.x = Math.random() * 14 - 7; // Nouvelle position aléatoire sur l'axe X
       setVelocity(Math.random() * 0.2 + 0.1); // Nouvelle vitesse de chute aléatoire
       setRotationVelocity(
         (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.2 + 0.1)
@@ -37,7 +51,7 @@ function Square(props) {
         const dy = mesh.current.position.y - square.position.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
   
-        const sizeFactor = (mesh.current.scale.x - square.scale.x) * 0.5;
+        const sizeFactor = (mesh.current.scale.x - square.scale.x) * 0.99;
         const force = sizeFactor / (distance * distance) * repulsionForce; // Calcul de la force de répulsion avec le paramètre repulsionForce
   
         if (distance < mesh.current.scale.x + square.scale.x) {
@@ -122,32 +136,60 @@ function Square(props) {
     >
       <planeGeometry args={[1, 1]} />
       <primitive object={material} attach="material" />
-      {mesh.current && (
         <Html position={[0, 0, 0.1]}>
-          <div className="text">{props.truc}</div>
+          <div className="text">{props.index}</div>
         </Html>
-      )}
     </mesh>
   );
 }
 
 export default function PageHome() {
-    return (
-      <div className="page">
-        <Canvas className="three__Canvas">
-          {Array.from({ length: 100 }).map((_, index) => (
-            <Square
-              key={index}
-              truc={index}
-              position={[
-                Math.floor(Math.random() * 14 - 7),
-                Math.floor(Math.random() * 14 - 7),
-                Math.random() * 4 - 2,
-              ]}
-              repulsionForce={5} // Valeur de la force de répulsion, ajustez-la selon vos besoins
-            />
-          ))}
-        </Canvas>
-      </div>
-    );
-  }
+  const [squaresData] = useState(() =>
+    Array.from({ length: 100 }).map((_, index) => ({
+      key: index,
+      position: [
+        Math.random() * 14 - 7,
+        Math.random() * 14 - 7,
+        Math.random() * 4 - 2,
+      ],
+      repulsionForce: 5,
+    }))
+  );
+  const [isSpeedUp, setIsSpeedUp] = useState(false);
+
+  useEffect(() => {
+    const handleMouseDown = (event) => {
+      setIsSpeedUp(true);
+    };
+
+    const handleMouseUp = () => {
+      setIsSpeedUp(false);
+    };
+
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
+  return (
+    <div className="page">
+      <Canvas className="three__Canvas">
+        <ambientLight />
+        <pointLight position={[10, 10, 10]} />
+        {squaresData.map((squareData) => (
+          <Square
+            key={squareData.key}
+            index={squareData.key}
+            position={squareData.position}
+            repulsionForce={squareData.repulsionForce}
+            isSpeedUp={isSpeedUp}
+          />
+        ))}
+      </Canvas>
+    </div>
+  );
+};
