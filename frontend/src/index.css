@@ -26,10 +26,19 @@ body {
   body {
     --size: 85px;
   }
+  .file-info {
+    --size: 90px;
+  }
 }
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 450px) {
   body {
     --size: 73px;
+  }
+  .file-info {
+    --size: 90px !important;
+  }
+  .file-info > * > * {
+    font-size: 0.9rem !important;
   }
 }
 
@@ -165,11 +174,50 @@ code {
   z-index: 100;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(45deg);
+  transform-origin: center center;
   --size: 170px;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-column-gap: calc(var(--margin-button) * 3);
+  grid-row-gap: var(--margin-button);
+
+
 }
 
 .file-info > * > * {
   font-family: "ModernSansLight";
   font-size: 1.5rem;
+  transform: rotate(-45deg);
+}
+
+
+.file-info__button {
+  z-index: 101;
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+  border: var(--border);
+  aspect-ratio: 1/1;
+  width: calc(var(--size) * 1.2);
+  margin-left: calc(var(--margin-button) * -1);
+  margin-right: calc(var(--margin-button) * -1);
+  transition: transform 0.3s ease-in-out;
+}
+
+.file-info__button-dl {
+  z-index: 102;
+}
+
+.file-info__button-dl:hover {
+  cursor: pointer;
+  transform: rotate(45deg) scale(var(--hover-scale));
+  transition: transform 0.3s ease-in-out;
+}
+
+.file-info__button-dl:hover > * {
+  user-select: none;
+  transform: rotate(-90deg);
+  transition: transform 0.3s ease-in-out;
 }

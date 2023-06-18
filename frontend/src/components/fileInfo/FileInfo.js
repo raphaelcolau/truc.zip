@@ -26,20 +26,25 @@ export default function FileInfo(props) {
   
     return (
       <div className="file-info">
-        <button className="file-info__button button">
+
+        <button className="file-info__button" style={{gridArea: "1/2/2/3"}}>
           <div className='button__text'>{info ? info.download_count + " DL" : "0"}</div>
         </button>
-        <button className="file-info__button button">
+
+        <button className="file-info__button" style={{gridArea: "1/1/2/2"}}>
           <div className='button__text'>{info ? info.name : "Loading..."}</div>
         </button>
-        <a href={`${apiAddress}files/download/${fileId}`} download>
-          <button className="file-info__button button">
+
+        {/* <a href={`${apiAddress}files/download/${fileId}`}  download > */}
+          <button className="file-info__button file-info__button-dl" style={{gridArea: "2/2/3/3"}}>
             <div className='button__text'>Download</div>
           </button>
-        </a>
-        <button className="file-info__button button">
+        {/* </a> */}
+
+        <button className="file-info__button " style={{gridArea: "2/1/3/2"}}>
           <div className='button__text'>{info ? sizeToText(info.size) : "Loading..."}</div>
         </button>
+
       </div>
     )
   }
