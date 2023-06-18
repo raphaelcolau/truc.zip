@@ -106,9 +106,9 @@ export default function Square(props) {
       >
         <planeGeometry args={[1, 1]} />
         <primitive object={material} attach="material" />
-          <Html position={[0, 0, 0.1]}>
+          {/* <Html position={[0, 0, 0.1]}>
             <div className="text">{props.index}</div>
-          </Html>
+          </Html> */}
       </mesh>
     );
   }
