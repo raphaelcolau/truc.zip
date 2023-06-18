@@ -21,6 +21,11 @@ const FileSchema = new mongoose.Schema({
         required: true,
         unique: false
     },
+    md5: {
+        type: String,
+        required: true,
+        unique: false
+    },
     download_count: {
         type: Number,
         required: true,
@@ -34,21 +39,9 @@ const FileSchema = new mongoose.Schema({
         default: Date.now()
     },
     created_by: {
-        type: Object,
+        type: String,
         required: true,
         unique: false
-    },
-    created_at: {
-        type: Date,
-        required: true,
-        unique: false,
-        default: Date.now()
-    },
-    updated_at: {
-        type: Date,
-        required: true,
-        unique: false,
-        default: Date.now()
     },
 }, {
     timestamps: true
