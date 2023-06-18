@@ -35,11 +35,21 @@ export default function FileInfo(props) {
           <div className='button__text'>{info ? info.name : "Loading..."}</div>
         </button>
 
-        {/* <a href={`${apiAddress}files/download/${fileId}`}  download > */}
-          <button className="file-info__button file-info__button-dl" style={{gridArea: "2/2/3/3"}}>
+          <button 
+            className="file-info__button file-info__button-dl"
+            style={{gridArea: "2/2/3/3"}}
+            onClick={() => {
+              if (info) {
+                setInfo({
+                  ...info,
+                  download_count: info.download_count + 1
+                });
+              }
+              window.location.assign(`${apiAddress}files/download/${fileId}`);
+            }}
+          >
             <div className='button__text'>Download</div>
           </button>
-        {/* </a> */}
 
         <button className="file-info__button " style={{gridArea: "2/1/3/2"}}>
           <div className='button__text'>{info ? sizeToText(info.size) : "Loading..."}</div>
