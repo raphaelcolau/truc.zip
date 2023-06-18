@@ -1,15 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Logo() {
     const logo = require('../../assets/images/logo.png');
 
     return (
-        <a href="https://raphael.colau.fr"  target="_blank" rel="noreferrer">
+        <Link to={'/'}>
             <img
                 alt='truc.zip logo'
                 src={logo}
                 className="logo"
             />
-        </a>
+        </Link>
     )  
 }
