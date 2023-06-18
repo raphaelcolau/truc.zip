@@ -1,10 +1,13 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { uploadFiles } from '../../adapters/uploadFiles';
 
 export default function UploadContainer(props) {
     const [dragging, setDragging] = useState(false);
     const [file, setFile] = useState([]);
     const [error, setError] = useState(null);
     const inputRef = useRef(null);
+    const navigate = useNavigate();
   
     const onDragEnter = (e) => {
         e.preventDefault();
@@ -30,14 +33,28 @@ export default function UploadContainer(props) {
         setDragging(false);
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
             setError(null);
-            setFile(e.dataTransfer.files[0]);
+            handleUploadFile(e.dataTransfer.files[0]);
             e.dataTransfer.clearData();
         }
     };
   
     const onFileSelect = (e) => {
         setError(null);
-        setFile(e.target.files[0]);
+        handleUploadFile(e.target.files[0]);
+    };
+
+    const handleUploadFile = async (efile) => {
+      props.setIsSpeedUp(true);
+      setFile(efile);
+      uploadFiles(efile).then((response) => {
+        if (response.url) {
+          navigate(response.url);
+        }
+        else {
+          setError(response);
+          console.log(response);
+        }
+      });
     };
   
     return (
