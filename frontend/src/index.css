@@ -160,17 +160,16 @@ code {
   overflow: hidden;
 }
 
-/*Animations rotate 360 degrees and scale to 0.5 0.8 1 0.5 0.8 1 upload container*/
-
-.upload-container__animation {
-  animation: rotate 6s linear infinite;
+.file-info {
+  position: absolute;
+  z-index: 100;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  --size: 170px;
 }
 
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(720deg);
-  }
+.file-info > * > * {
+  font-family: "ModernSansLight";
+  font-size: 1.5rem;
 }
