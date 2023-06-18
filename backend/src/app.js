@@ -10,8 +10,14 @@ const fs = require('fs');
 const http = require('http');
 const https = require('https');
 
-// Setup CORS options
-const corsOptions = {origin: "*"};
+// Setup CORS options ony for localhost, localnetwork and truc.zip
+const corsOptions = {origin: function (origin, callback) {
+    if (origin === undefined || origin.includes("localhost") || origin.includes("192.168") || origin.includes("truc.zip")) {
+        callback(null, true);
+    } else {
+        callback(new Error('Not allowed by CORS'));
+    }
+}};
 
 // Load CORS with options
 app.use(cors(corsOptions));
