@@ -5,7 +5,7 @@ export default function ButtonBar() {
       <div className="button-bar">
         <a href="https://raphael.colau.fr" target="_blank" rel="noreferrer">
           <button className="button">
-            <div className="button-text">Raphaël C.</div>
+            <div className="button-text">CRD</div>
           </button>
         </a>
         <button className="button">

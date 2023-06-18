@@ -23,6 +23,12 @@ body {
   color: var(--color-primary);
 }
 
+@media only screen and (max-width: 800px) {
+  body {
+    --size: 80px;
+  }
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -54,7 +60,7 @@ code {
   position: absolute;
   top: 10px;
   left: 10px;
-  width: min(50vw, 400px);
+  width: min(70vw, 350px);
   z-index: 100;
 }
 
@@ -84,6 +90,7 @@ code {
   margin-left: calc(var(--margin-button) * -1);
   margin-right: calc(var(--margin-button) * -1);
   transition: transform 0.3s ease-in-out;
+
 }
 
 .button:nth-child(even) {
