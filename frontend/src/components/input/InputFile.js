@@ -50,6 +50,7 @@ export default function UploadContainer() {
       dispatch(setIsSpeedUp(true));
       setFile(efile);
       uploadFiles(efile).then((response) => {
+        dispatch(setIsSpeedUp(false));
         if (response.url) {
           navigate(response.url);
         }
