@@ -3,7 +3,6 @@ const File = require('../models/files.model.js');
 const fs = require('fs');
 
 exports.uploadFile = async (req, res) => {
-
     try {
         const file = req.files ? req.files.files : null;
 
@@ -13,7 +12,7 @@ exports.uploadFile = async (req, res) => {
 
         const randomId = Math.random().toString(36).substring(2, 8);
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    
+
         const fileData = new File({
             name: file.name,
             url: randomId,
@@ -22,6 +21,7 @@ exports.uploadFile = async (req, res) => {
             md5: file.md5,
             created_by: ip,
         });
+        
         await fileData.save();
 
         fs.mkdirSync('./files/' + randomId, { recursive: true }, (err) => {

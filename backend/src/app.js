@@ -10,6 +10,7 @@ const fs = require('fs');
 const http = require('http');
 const https = require('https');
 
+
 // Setup CORS options ony for localhost, localnetwork and truc.zip
 const corsOptions = {origin: function (origin, callback) {
     if (origin === undefined || origin.includes("localhost") || origin.includes("192.168") || origin.includes("truc.zip")) {
@@ -31,17 +32,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //Compress all routes
 app.use(compression());
 
+// Helmet for security
 app.use(helmet());
 
 //File upload middleware
-app.use(fileUpload());
+app.use(fileUpload({
+    defCharset: 'utf-8',
+    defParamCharset: 'utf-8',
+    preserveExtension: true,
+}));
 
 // Function routes
-
 app.use('/files/', require('./routes/files.route'));
-
-
-
 
 try {
     if (fs.existsSync('./sslcert/privkey.pem') && fs.existsSync('./sslcert/cert.pem')) {
