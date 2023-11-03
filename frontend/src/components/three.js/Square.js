@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
+// import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { material } from './material.js';
 
@@ -18,7 +18,6 @@ export default function Square(props) {
     const repulsionForce = props.repulsionForce || 0.1;
     const bezierCurve = [.63,.11,.29,.73];
     const transitionDuration = 1; // Durée de la transition de vitesse en secondes
-  
     useEffect(() => {
       setTargetVelocity(props.isSpeedUp ? 1 : originalVelocity);
     }, [props.isSpeedUp, originalVelocity]);
