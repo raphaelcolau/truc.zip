@@ -1,9 +1,11 @@
 import React, {useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import Square from './Square';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsSpeedUp } from '../../store/three-store';
 
-export default function CanvasBackground(props) {
-    const [squaresData] = useState(() =>
+export default function CanvasBackground() {
+  const [squaresData] = useState(() =>
     Array.from({ length: 70 }).map((_, index) => ({
       key: index,
       position: [
@@ -14,15 +16,16 @@ export default function CanvasBackground(props) {
       repulsionForce: 5,
     }))
   );
-  const [isSpeedUp, setIsSpeedUp] = useState(false);
+  const dispatch = useDispatch();
+  const isSpeedUp = useSelector((state) => state.isSpeedUp);
 
   useEffect(() => {
     const handleMouseDown = (event) => {
-      setIsSpeedUp(true);
+      dispatch(setIsSpeedUp(true));
     };
 
     const handleMouseUp = () => {
-      setIsSpeedUp(false);
+      dispatch(setIsSpeedUp(false));
     };
 
     window.addEventListener('mousedown', handleMouseDown);
@@ -32,7 +35,7 @@ export default function CanvasBackground(props) {
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, []);
+  });
 
   return (
     <div className="page">

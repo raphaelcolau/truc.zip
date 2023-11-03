@@ -1,13 +1,16 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadFiles } from '../../adapters/uploadFiles';
+import { useDispatch } from 'react-redux';
+import { setIsSpeedUp } from '../../store/three-store';
 
-export default function UploadContainer(props) {
+export default function UploadContainer() {
     const [dragging, setDragging] = useState(false);
     const [file, setFile] = useState([]);
     const [error, setError] = useState(null);
     const inputRef = useRef(null);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
   
     const onDragEnter = (e) => {
         e.preventDefault();
@@ -44,7 +47,7 @@ export default function UploadContainer(props) {
     };
 
     const handleUploadFile = async (efile) => {
-      props.setIsSpeedUp(true);
+      dispatch(setIsSpeedUp(true));
       setFile(efile);
       uploadFiles(efile).then((response) => {
         if (response.url) {
